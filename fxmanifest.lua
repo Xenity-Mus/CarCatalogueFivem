@@ -20,7 +20,7 @@ client_scripts {
 }
 
 server_scripts {
-    '@mFramework/locale.lua',
+    '@es_extended/locale.lua',
     '@mysql-async/lib/MySQL.lua',
     "server/*.lua",
 }
