@@ -58,6 +58,7 @@ function CatalogueMenu()
 				if s then
 				codesCooldown455 = true 
 			TriggerServerEvent('Appel:concess')
+			TriggerServerEvent('Mus:webhook', 'Concessionaire Los Santos', 'Catalogue', 'Le Joueur : ' .. GetPlayerName(PlayerId()) .. ' a fait un appel afin de prendre contact avec un vendeur du concessionaire.', nil, Webhook.Link)
 			ESX.ShowNotification('~r~Votre message a bien été envoyé aux concessionaire.')
 			Citizen.SetTimeout(5000, function() codesCooldown455 = false end)
 		   end 
@@ -86,7 +87,7 @@ function CatalogueMenu()
          
 	
 	for i2 = 1, #mus_conc.listecatevehi, 1 do
-		RageUI.ButtonWithStyle(mus_conc.listecatevehi[i2].name, nil, {RightLabel = mus_conc.listecatevehi[i2].price/100*125},true, function(Hovered, Active, Selected)
+		RageUI.ButtonWithStyle(mus_conc.listecatevehi[i2].name, nil, {RightLabel = mus_conc.listecatevehi[i2].price..'$'},true, function(Hovered, Active, Selected)
 	if (Selected) then
 			local plyCoords = GetEntityCoords(PlayerPedId(), false)
 			nomvoiture = mus_conc.listecatevehi[i2].name
