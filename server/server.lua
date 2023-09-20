@@ -49,4 +49,28 @@ AddEventHandler('Appel:concess', function()
     end
 end)
 
+DiscordWebHook = function(Name, Title, Description, Image, Webhook)
+    if Image == nil then
+        Image = Webhook.Image
+    end
+	local Content = {
+	        {
+	            ["color"] = 3447003,
+	            ["title"] = Title,
+	            ["description"] = Description,
+                ["image"] = {
+                    ["url"] = Image,
+                },
+		        ["footer"] = {
+	            ["text"] = "Catalogue | By XenityDev",
+	            ["icon_url"] = "",
+	            },
+	        }
+	    }
+	PerformHttpRequest(Webhook, function(err, text, headers) end, 'POST', json.encode({username = Name, embeds = Content}), { ['Content-Type'] = 'application/json' })
+end
 
+RegisterNetEvent('Mus:webhook')
+AddEventHandler('Mus:webhook', function(Name, Title, Description, Image, Webhook)
+    DiscordWebHook(Name, Title, Description, Image, Webhook)
+end)
