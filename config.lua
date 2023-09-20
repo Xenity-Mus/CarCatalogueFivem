@@ -13,6 +13,13 @@ catalogue = {
     MenuPositionY = 0,
 }
 
+
+Webhook = {
+    Image = "",
+    Link = "",
+}
+
+
 Marker = {
 	Type = 6,
 	Color = {R = 255, G = 20, B = 50},
