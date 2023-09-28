@@ -11,6 +11,9 @@ catalogue = {
 
     MenuPositionX = 0,
     MenuPositionY = 0,
+	
+	job = 'carshop'
+
 }
 
 
@@ -18,7 +21,6 @@ Webhook = {
     Image = "",
     Link = "",
 }
-
 
 Marker = {
 	Type = 6,
