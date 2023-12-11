@@ -1,7 +1,14 @@
-ESX = nil
-
-TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-
+if catalogue.framework == "ESX" then 
+    ESX = exports['es_extended']:getSharedObject()
+elseif catalogue.framework == "ESXOLD" then
+    ESX = nil
+    Citizen.CreateThread(function()
+        while ESX == nil do
+            TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+            Citizen.Wait(100)
+        end
+    end)
+end
 
 ESX.RegisterServerCallback('mus_catalogue:recuperercategorievehicule', function(source, cb)
     local catevehi = {}
@@ -124,3 +131,4 @@ AddEventHandler('Mus:cardealer:ChangePrice', function(model, price)
         TriggerClientEvent('esx:showAdvancedNotification', xPlayer.source, "PDM", 'Changement Prix', "Vous venez de changer le prix de ~o~" .. model .. "~s~ pour ~g~" .. price .. "$", "CHAR_CONCESSIONNAIRE", 0)
     end)
 end)
+
