@@ -1,11 +1,26 @@
-ESX = nil
+if catalogue.framework == "ESX" then 
+    ESX = exports['es_extended']:getSharedObject()
+elseif catalogue.framework == "ESXOLD" then
+    ESX = nil
+    Citizen.CreateThread(function()
+        while ESX == nil do
+            TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
+            Citizen.Wait(100)
+        end
+    end)
+end
 
-Citizen.CreateThread(function()
-    while ESX == nil do
-        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-        Citizen.Wait(10)
-    end
+RegisterNetEvent('esx:playerLoaded')
+AddEventHandler('esx:playerLoaded', function(xPlayer)
+	ESX.PlayerData = xPlayer
 end)
+
+
+RegisterNetEvent('esx:setJob')
+AddEventHandler('esx:setJob', function(job)
+	ESX.PlayerData.job = job
+end)
+
 local playerCars = {}
 
 mus_conc = {
@@ -33,46 +48,45 @@ local CurrentActionData, Vehicles, Categories = {}, {}, {}
 inview = false
 
 function CatalogueMenu()
-	local catalogueee = RageUI.CreateMenu("", "Véhicules")
-	local vehiclemenu = RageUI.CreateSubMenu(catalogueee, "", "Catégorie véhicule")
-	local vehiclemenuparam = RageUI.CreateSubMenu(vehiclemenu, "", "Options")
-	local mangcat = RageUI.CreateSubMenu(catalogueee, "", "Selectionner le véhicule")
+    local catalogueee = RageUI.CreateMenu("", "Véhicules")
+    local vehiclemenu = RageUI.CreateSubMenu(catalogueee, "", "Catégorie véhicule")
+    local vehiclemenuparam = RageUI.CreateSubMenu(vehiclemenu, "", "Options")
+    local mangcat = RageUI.CreateSubMenu(catalogueee, "", "Selectionner le véhicule")
     local managecat = RageUI.CreateSubMenu(mangcat, "", "Que voulez vous faire ?")
     local gestion = RageUI.CreateSubMenu(managecat, "", "Que voulez vous faire ?")
-	
-	catalogueee.Closed = function()
+
+    catalogueee.Closed = function()
         supprimervehiculecata()
     end
-	vehiclemenu.Closed = function()
+    vehiclemenu.Closed = function()
         supprimervehiculecata()
     end
-	vehiclemenuparam.Closed = function()
+    vehiclemenuparam.Closed = function()
         supprimervehiculecata()
     end
 
-        RageUI.Visible(catalogueee, not RageUI.Visible(catalogueee))
+    RageUI.Visible(catalogueee, not RageUI.Visible(catalogueee))
 
-        while catalogueee do
-            Citizen.Wait(0)
-            RageUI.IsVisible(catalogueee, true, true, true, function()
-		
-			
-			RageUI.ButtonWithStyle("Appel Un Concessionaire a l'accueil", nil, { RightLabel = "→→" }, not codesCooldown455, function(_, _, s)
-				if s then
-				codesCooldown455 = true 
-			TriggerServerEvent('Appel:concess')
-			ESX.ShowNotification('~r~Votre message a bien été envoyé aux concessionaire.')
-			TriggerServerEvent('Mus:webhook', 'Concessionaire Los Santos', 'Catalogue', 'Le Joueur : ' .. GetPlayerName(PlayerId()) .. ' a fait un appel afin de prendre contact avec un vendeur du concessionaire.', nil, Webhook.Link)
-			Citizen.SetTimeout(5000, function() codesCooldown455 = false end)
-		   end 
-		end
-		)
+    while catalogueee do
+        Citizen.Wait(0)
+        RageUI.IsVisible(catalogueee, true, true, true, function()
 
-		if ESX.PlayerData.job and ESX.PlayerData.job.name == catalogue.job then
-			RageUI.Separator('↓ ~r~Action Concessionaire~s~ ↓')
-			RageUI.ButtonWithStyle('Gérer le catalogue', nil, {RightLabel = "→→"}, true, function(Hovered, Active, Selected)
-			end, mangcat)
-		end
+            RageUI.ButtonWithStyle("Appel Un Concessionaire a l'accueil", nil, { RightLabel = "→→" }, not codesCooldown455, function(_, _, s)
+                if s then
+                    codesCooldown455 = true 
+                    TriggerServerEvent('Appel:concess')
+                    ESX.ShowNotification('~r~Votre message a bien été envoyé aux concessionaires.')
+                    TriggerServerEvent('Mus:webhook', 'Concessionaire Los Santos', 'Catalogue', 'Le Joueur : ' .. GetPlayerName(PlayerId()) .. ' a fait un appel afin de prendre contact avec un vendeur du concessionaire.', nil, Webhook.Link)
+                    Citizen.SetTimeout(5000, function() codesCooldown455 = false end)
+                end 
+            end)
+
+            if ESX.PlayerData.job and ESX.PlayerData.job.name == catalogue.job then
+                -- Vérifie si le joueur a le rôle "cardealer"
+                RageUI.Separator('↓ ~r~Action Concessionaire~s~ ↓')
+                RageUI.ButtonWithStyle('Gérer le catalogue', nil, {RightLabel = "→→"}, true, function(Hovered, Active, Selected)
+                end, mangcat)
+            end
 
 			RageUI.Line()
 		
@@ -88,8 +102,9 @@ function CatalogueMenu()
                 end, vehiclemenu)
             end
 
-	end, function()
-	end)
+		end, function()
+        end)
+	
 
 	RageUI.IsVisible(vehiclemenu, true, true, true, function()
 	RageUI.Separator("↓ Catégorie : "..nomcategorie.." ↓")
@@ -246,7 +261,7 @@ function CatalogueMenu()
 		end
 	end)
 	RageUI.IsVisible(managecat, true, true, true, function()
-		RageUI.ButtonWithStyle('~g~Ajouter~s~ un véhucule', nil, {RightLabel = "→→"}, true, function(a, h, s)
+		RageUI.ButtonWithStyle('~g~Ajouter~s~ un véhicule', nil, {RightLabel = "→→"}, true, function(a, h, s)
 			if s then 
 				local input = KeyboardInput('Entrer le spawn du véhicule (EX : t20)', '', 15)
 				if IsModelInCdimage(input) then
@@ -327,30 +342,29 @@ end
 end)
 
 function lookveh(car)
+    DoScreenFadeOut(100)
+    Citizen.Wait(750)
 
-	DoScreenFadeOut(100)
-	Citizen.Wait(750)
+    local carHash = GetHashKey(car)
 
-	local car = GetHashKey(car)
-    RequestModel(car)
-    while not HasModelLoaded(car) do
-        RequestModel(car)
-        Citizen.Wait(0)
+    RequestModel(carHash)
+
+    while not HasModelLoaded(carHash) do
+        Wait(500)
+        RequestModel(carHash)  -- Demander à nouveau le modèle s'il n'est pas chargé
     end
 
-    local vehicle = CreateVehicle(car, catalogue.pos.viewvehicatalogue.position.x, catalogue.pos.viewvehicatalogue.position.y, catalogue.pos.viewvehicatalogue.position.z, catalogue.pos.viewvehicatalogue.position.h, true, false)
-	table.insert(derniervoituresorti, vehicle)
-	FreezeEntityPosition(vehicle, true)
-	TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
-	SetModelAsNoLongerNeeded(vehicle)
-	SetVehicleDoorsLocked(vehicle, 4)
-	SetPedIntoVehicle(PlayerPedId(),vehicle,-1)
+    local vehicle = CreateVehicle(carHash, catalogue.pos.viewvehicatalogue.position.x, catalogue.pos.viewvehicatalogue.position.y, catalogue.pos.viewvehicatalogue.position.z, catalogue.pos.viewvehicatalogue.position.h, true, false)
 
-	DoScreenFadeIn(100)
+    table.insert(derniervoituresorti, vehicle)
+    FreezeEntityPosition(vehicle, true)
+    TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
+    SetModelAsNoLongerNeeded(carHash)
+    SetVehicleDoorsLocked(vehicle, 4)
 
--- posavant
-
+    DoScreenFadeIn(100)
 end
+
 
 function spawnuniCarCatalogue(car)
     local car = GetHashKey(car)
@@ -402,6 +416,8 @@ function ClosetVehWithDisplay()
     local vCoords = GetEntityCoords(veh)
     DrawMarker(2, vCoords.x, vCoords.y, vCoords.z + 1.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 255, 255, 255, 170, 0, 1, 2, 0, nil, nil, 0)
 end
+
+
 
 function KeyboardInput(TextEntry, ExampleText, MaxStringLenght)
 
