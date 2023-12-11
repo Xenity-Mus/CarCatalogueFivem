@@ -3,17 +3,17 @@ catalogue             = {}
 catalogue = {
 
 	jeveuxmarker = true, --- true = Oui | false = Non
-
-	vehColor = {"Rouge", "Bleu", "Noir", "Orange", "Blanc"},
     ------------
-    ESXTrigger = "esx:getSharedObject",
+	vehColor = {"Rouge", "Bleu", "Noir", "Orange", "Blanc"},
     ------------
 
     MenuPositionX = 0,
     MenuPositionY = 0,
-	
-	job = 'carshop'
-
+	------------
+	job = 'cardealer',
+    ------------
+	framework = "ESX", -- ESX/OLDESX
+    ------------
 }
 
 
